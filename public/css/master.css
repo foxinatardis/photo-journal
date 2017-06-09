@@ -1,0 +1,36 @@
+.view-wrapper {
+  position: relative;
+}
+
+.background {
+  position: relative;
+  padding-bottom: 100vh;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+
+  /*Will remove the below style*/
+  background-color: #e0e;
+}
+
+.overlay {
+  position: absolute;
+
+  /*Below styles may change*/
+  background-color: #eee;
+}
+
+body {
+  /*will remove the below style*/
+  background-color: #333;
+}
+
+html {
+    overflow: hidden;
+    height: 100%;
+}
+
+body {
+    height: 100%;
+    overflow: auto;
+}
