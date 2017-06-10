@@ -1,3 +1,8 @@
+/*.scroll {
+  position: relative;
+  z-index: 1;
+}*/
+
 
 .view-wrapper {
   position: fixed;
@@ -15,10 +20,6 @@
   background-repeat: no-repeat;
   background-size: cover;
   background-attachment: fixed;
-  overflow: scroll;
-
-  /*Will remove the below style*/
-  /*background-color: #e0e;*/
 }
 
 /*#view-1 .background {
@@ -55,5 +56,6 @@ html {
 
 body {
     height: 100%;
+	margin: 0;
     overflow: auto;
 }
