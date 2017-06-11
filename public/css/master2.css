@@ -44,11 +44,6 @@
   background-color: #39e;
 }
 
-body {
-  /*will remove the below style*/
-  /*background-color: #333;*/
-}
-
 html {
     overflow: hidden;
     height: 100%;

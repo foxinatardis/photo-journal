@@ -1,18 +1,4 @@
-var currentViewObject = {
-	viewId: '#view-1',
-	backgroundId: '#background-1',
-	overlayId: '#overlay-1',
-	textElementId: '#text-1',
-	index: 0
-};
-var nextViewObject = {
-	viewId: '#view-2',
-	backgroundId: '#background-2',
-	overlayId: '#overlay-2',
-	textElementId: '#text-2',
-	index: 0
-};
-
+var currentViewIndex = 0;
 var views = [];
 
 var viewOptions = [
@@ -49,33 +35,33 @@ function setScrollDiv() {
 	var scrollStyles = {
 		'position': 'relative',
 		'z-index': viewOptions.length * 10,
-		// 'height': '100vh'
 	};
-	$('.scroll').css(scrollStyles);
+	var scrollDiv = $(document.createElement('div'));
+	scrollDiv.css(scrollStyles);
+	scrollDiv.addClass('scroll');
+	$('body').append(scrollDiv);
 }
 
 function placeScrollStops() {
 
-	for(var i = 0; i < viewOptions.length; i++) {
+	for(var i = 0; i < viewOptions.length + 1; i++) {
 		var stop = $(document.createElement('div'));
-		var color = '#' + (i*30) + (i*30) + (i*30);
 		stop.css('height', '300vh');
 		stop.css('position', 'relative');
-		// stop.css('background-color', color);
 		stop.addClass('scrollStop-' + i);
 		$('.scroll').append(stop);
 	}
 }
 
 function createViews() {
-	viewOptions.reverse();
 	for (var i = 0; i < viewOptions.length; i++) {
+		var view;
 		var viewWrapper = $(document.createElement('div'));
 		var viewBackground = $(document.createElement('div'));
 		var overlay = $(document.createElement('div'));
-		var overlayText = $(document.createElement('h3'));
+		var overlayText = $(document.createElement('p'));
 		viewWrapper.css({
-			'z-index': i,
+			'z-index': viewOptions.length - i,
 			'position': 'fixed',
 			'top': 0,
 			'width': '100%',
@@ -94,7 +80,8 @@ function createViews() {
 		overlay.css({
 			'background-color': '#eee',
 			'border-radius': '5px',
-			'padding': '20px',
+			'padding': '5vh 5vw',
+			'max-width': '50vw',
 			'left': '5vw',
 			'box-shadow': '0 0 10px #111'
 		});
@@ -106,20 +93,54 @@ function createViews() {
 		});
 		overlayText.text(viewOptions[i].overlayText);
 		if(viewOptions[i].overlayTextStyles) overlayText.css(viewOptions[i].overlayTextStyles);
-		// nextView.css('display', 'block');
 		overlay.append(overlayText);
 		viewBackground.append(overlay);
 		viewWrapper.append(viewBackground);
 		$('body').append(viewWrapper);
+		view = {
+			viewWrapper: viewWrapper,
+			viewBackground: viewBackground,
+			overlay: overlay,
+			overlayText: overlayText,
+			scrollStop: $('.scrollStop-' + (i + 1))
+		};
+		views.push(view);
 	}
 }
 
 function updateLoop() {
+	var scrollStopOffsetTop = views[currentViewIndex].scrollStop.offset().top;
+	var scrollStopHeight = views[currentViewIndex].scrollStop.height();
+	var overlay = views[currentViewIndex].overlay;
+	var viewWrapper = views[currentViewIndex].viewWrapper;
+	var overlayHeight = overlay.height();
+	var windowHeight = $(window).height();
+	var heightToScrollOverlay = overlayHeight + windowHeight;
+	var scrollPercentageFromTop = scrollStopOffsetTop / scrollStopHeight;
 
-}
+	var newOverlayTopOffset = heightToScrollOverlay - (windowHeight * (1 - scrollPercentageFromTop) * 1.3);
 
-function getCurrentScrollPosition() {
+	overlay.css('top', newOverlayTopOffset);
+
+	if(scrollPercentageFromTop > 0.9 && currentViewIndex > 0) {
+
+		currentViewIndex--;
+
+	} else if (scrollPercentageFromTop > 0.1) {
+
+		viewWrapper.css('opacity', '1');
+
+	} else if(scrollPercentageFromTop < 0.1 && scrollPercentageFromTop >= 0 && currentViewIndex < views.length - 1) {
+
+		viewWrapper.css('opacity', (scrollPercentageFromTop * 10));
+
+	} else if (scrollPercentageFromTop < 0 && currentViewIndex < views.length - 1) {
+
+		viewWrapper.css('opacity', '0');
+		currentViewIndex++;
+	}
 
 }
 
 setup();
+setInterval(updateLoop, 1000/60);
