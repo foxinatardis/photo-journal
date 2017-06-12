@@ -56,23 +56,25 @@ function placeScrollStops() {
 function createViews() {
 	for (var i = 0; i < viewOptions.length; i++) {
 		var view = {
-			viewWrapper: createViewWrapper(viewOptions[i], viewOptions.length - i),
+			viewWrapper: createFixedViewWrapper(viewOptions[i], viewOptions.length - i),
+			relativeViewWrapper: createRelativeViewWrapper(),
 			viewBackground: createViewBackground(viewOptions[i]),
 			overlay: createOverlay(viewOptions[i]),
 			overlayText: createOverlayText(viewOptions[i]),
 			scrollStop: $('.scrollStop-' + (i + 1))
 		};
+		view.relativeViewWrapper.append(view.viewBackground);
 		view.overlay.append(view.overlayText);
-		view.viewBackground.append(view.overlay);
-		view.viewWrapper.append(view.viewBackground);
+		view.relativeViewWrapper.append(view.overlay);
+		view.viewWrapper.append(view.relativeViewWrapper);
 		$('body').append(view.viewWrapper);
 		views.push(view);
 	}
 }
 
-function createViewWrapper(viewOptions, index) {
-	var viewWrapper = $(document.createElement('div'));
-	viewWrapper.css({
+function createFixedViewWrapper(viewOptions, index) {
+	var fixedViewWrapper = $(document.createElement('div'));
+	fixedViewWrapper.css({
 		'z-index': index,
 		'position': 'fixed',
 		'top': 0,
@@ -80,15 +82,25 @@ function createViewWrapper(viewOptions, index) {
 		'display': 'block',
 		'opacity': 1
 	});
-	return viewWrapper;
+	return fixedViewWrapper;
+}
+
+function createRelativeViewWrapper() {
+	var relativeViewWrapper = $(document.createElement('div'));
+	relativeViewWrapper.css({
+		'position': 'relative'
+	});
+	return relativeViewWrapper;
 }
 
 function createViewBackground(viewOptions) {
 	var viewBackground = $(document.createElement('div'));
 	if(viewOptions.backgroundStyles) viewBackground.css(viewOptions.backgroundStyles);
 	viewBackground.css({
-		'position': 'relative',
+		'position': 'absolue',
+		'top': 0,
 		'height': '100vh',
+		'width': '100%',
 		'background': viewOptions.backgroundUrl,
 		'background-position': 'center',
 		'background-repeat': 'no-repeat',
@@ -141,7 +153,7 @@ function updateLoop() {
 
 	overlay.css('top', newOverlayTopOffset);
 
-	// if(scrollPercentageFromTop > 0) viewBackground.css('transform', 'scale(' + (1 + ((1 - scrollPercentageFromTop))) + ')');
+	if(scrollPercentageFromTop > 0) viewBackground.css('transform', 'scale(' + (1 + ((1 - scrollPercentageFromTop) * 0.2)) + ')');
 
 	if(scrollPercentageFromTop > 0.9 && currentViewIndex > 0) {
 
