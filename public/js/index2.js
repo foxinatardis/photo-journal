@@ -5,27 +5,67 @@ var viewOptions = [
 	{
 		backgroundUrl: 'url(/images/background-1.jpg)',
 		backgroundStyles: null,
-		overlayText: 'Here is some exciting text!!!',
+		overlayText: [
+			{
+				textType: 'title',
+				text: 'Here is some exciting text!!!'
+			}
+		],
 		overlayTextStyles: null,
 		overlayStyles: null,
 		overlayOptions: {
 			position: 'right',
-			textAlign: 'center'
+			textAlign: 'right'
 		}
 	},
 	{
 		backgroundUrl: 'url(/images/background-2.jpg)',
 		backgroundStyles: null,
-		overlayText: 'Here is some more exciting text!!!',
+		overlayText: [{
+			text: 'Here is some more exciting text!!!',
+			bold: true,
+			italic: false,
+			textAlign: 'center'
+		}],
 		overlayTextStyles: null,
-		overlayStyles: null
+		overlayStyles: null,
+		overlayOptions: {
+			position: 'center',
+			textAlign: 'right'
+		}
 	},
 	{
 		backgroundUrl: 'url(/images/background-3.jpg)',
 		backgroundStyles: null,
-		overlayText: 'Here is some boring text.',
+		overlayText: [
+			{
+				textType: 'title',
+				text: 'Here is some boring text.',
+				bold: false,
+				italic: true,
+				textAlign: 'right'
+			},
+			{
+				textType: 'sub-title',
+				text: 'Here is some even more boring text.',
+				bold: true,
+				italic: false,
+				textAlign: 'left'
+			},
+			{
+				textType: 'plain-title',
+				text: 'And here is a description of just how incredibly boring the text is. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+				bold: false,
+				italic: false,
+				textAlign: 'justify'
+			}
+		],
 		overlayTextStyles: null,
-		overlayStyles: null
+		overlayStyles: null,
+		overlayOptions: {
+			position: 'left',
+			textAlign: 'left'
+		}
 	}
 ];
 
@@ -146,10 +186,35 @@ function createOverlay(viewOptions) {
 }
 
 function createOverlayText(viewOptions) {
-	var overlayText = $(document.createElement('p'));
-	overlayText.text(viewOptions.overlayText);
-	if(viewOptions.overlayTextStyles) overlayText.css(viewOptions.overlayTextStyles);
-	return overlayText;
+	var textWrapper = $(document.createElement('div'));
+	if(viewOptions.overlayText.length > 0) {
+		for(var i = 0; i < viewOptions.overlayText.length; i++) {
+			var textElement = createTextElement(viewOptions.overlayText[i], viewOptions.overlayTextStyles);
+			textWrapper.append(textElement);
+		}
+	}
+	return textWrapper;
+}
+
+function createTextElement(textOptions, textStyles) {
+	var elementType = textOptions.textType;
+	var basicTextStyles = {
+		'font-style': textOptions.italic ? 'italic' : 'normal',
+		'font-weight': textOptions.bold ? 'bold' : 'normal',
+		'text-align': textOptions.textAlign ? textOptions.textAlign : 'left'
+	};
+	var textElement;
+	if (elementType === 'sub-title') {
+		textElement = $(document.createElement('h3'));
+	} else if (elementType === 'title') {
+		textElement = $(document.createElement('h2'));
+	} else {
+		textElement = $(document.createElement('p'));
+	}
+	textElement.text(textOptions.text);
+	textElement.css(basicTextStyles);
+	if(textStyles) textElement.css(textStyles);
+	return textElement;
 }
 
 function updateLoop() {
