@@ -7,7 +7,11 @@ var viewOptions = [
 		backgroundStyles: null,
 		overlayText: 'Here is some exciting text!!!',
 		overlayTextStyles: null,
-		overlayStyles: null
+		overlayStyles: null,
+		overlayOptions: {
+			position: 'right',
+			textAlign: 'center'
+		}
 	},
 	{
 		backgroundUrl: 'url(/images/background-2.jpg)',
@@ -97,14 +101,14 @@ function createViewBackground(viewOptions) {
 	var viewBackground = $(document.createElement('div'));
 	if(viewOptions.backgroundStyles) viewBackground.css(viewOptions.backgroundStyles);
 	viewBackground.css({
-		'position': 'absolue',
+		'position': 'absolute',
 		'top': 0,
 		'height': '100vh',
 		'width': '100%',
 		'background': viewOptions.backgroundUrl,
 		'background-position': 'center',
 		'background-repeat': 'no-repeat',
-		'background-size': '100%',
+		'background-size': 'cover',
 	});
 	return viewBackground;
 }
@@ -116,15 +120,27 @@ function createOverlay(viewOptions) {
 		'border-radius': '5px',
 		'padding': '5vh 5vw',
 		'max-width': '50vw',
-		'left': '5vw',
 		'box-shadow': '0 0 10px #111',
 		'opacity': '0.8'
 	});
+	if(viewOptions.overlayOptions) {
+		var position = viewOptions.overlayOptions.position;
+		var textAlign = viewOptions.overlayOptions.textAlign;
+		if(position && position === 'right') {
+			position = { 'right': '5vw' };
+		} else if (position && position === 'center') {
+			position = { 'right': '25vw', 'left': '25vw' };
+		} else {
+			position = { 'left': '5vw' };
+		}
+		if(textAlign) overlay.css('text-align', textAlign);
+		overlay.css(position);
+	}
 	if(viewOptions.overlayStyles) overlay.css(viewOptions.overlayStyles);
 	overlay.css({
 		'max-height': '90vh',
 		'position': 'absolute',
-		'top': '100vh'
+		'top': '100vh',
 	});
 	return overlay;
 }
@@ -153,7 +169,7 @@ function updateLoop() {
 
 	overlay.css('top', newOverlayTopOffset);
 
-	if(scrollPercentageFromTop > 0) viewBackground.css('transform', 'scale(' + (1 + ((1 - scrollPercentageFromTop) * 0.2)) + ')');
+	if(scrollPercentageFromTop > 0) viewBackground.css('transform', 'scale(' + Math.max(1 + ((1 - scrollPercentageFromTop) * 0.2), 1) + ')');
 
 	if(scrollPercentageFromTop > 0.9 && currentViewIndex > 0) {
 
