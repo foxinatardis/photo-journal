@@ -1,0 +1,29 @@
+
+  views - an array of objects with properties to be placed in each view
+  {
+    backgroundUrl: url for background image,
+    backgroundStyles: object of css styles for background,
+    overlayText: array of text for overlay max-length 3,
+	overlayOptions,
+    overlayTextStyles,
+    overlayStyles
+  }
+
+overlayOptions = {
+	position: left, right, center,
+	textAlign: left, right, center,
+
+}
+
+overlayText = [{
+	text: string of text to display,
+	textType: title, sub-title, plain-text,
+	textAlign: left, right, center, justify,
+	bold: true or false,
+	italic: true or false,
+}]
+
+Future consideration:
+  splash page
+    -this will show first, then we scroll down until the first view hits the top of the window at which point its position is fixed to the view port and the rest of the program can take over
+    -it needs to reappear when scrolling back up the page.

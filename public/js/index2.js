@@ -158,7 +158,7 @@ function createOverlay(viewOptions) {
 	overlay.css({
 		'background-color': '#eee',
 		'border-radius': '5px',
-		'padding': '5vh 5vw',
+		'padding': '2vh 15px',
 		'max-width': '50vw',
 		'box-shadow': '0 0 10px #111',
 		'opacity': '0.8'
