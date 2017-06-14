@@ -6,7 +6,7 @@ var http = express();
 http.use(compression());
 
 http.get('/', (req, res) => {
-  res.sendFile(__dirname + '/public/html/index2.html');
+  res.sendFile(__dirname + '/public/html/index.html');
 });
 
 http.use(express.static(__dirname + '/public'));

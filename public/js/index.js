@@ -1,163 +1,324 @@
-// var lastScrollOffset = 0;
-// var scrollingDown = true;
-// var currentViewId = '#view-1';
-// var activeDivId = "#background-1";
-// var nextViewId = '#view-2';
-// var currentIndex = 0;
-// var nextViewSet = false;
-var transitionComplete = false;
-var lastOffsetTop = 0;
-var currentIndex = 0;
-var nextIndex = 0;
-currentViewObject = {
-  viewId: '#view-1',
-  backgroundId: '#background-1',
-  overlayId: '#overlay-1',
-  textElementId: '#text-1',
-  index: 0
-};
-nextViewObject = {
-  viewId: '#view-2',
-  backgroundId: '#background-2',
-  overlayId: '#overlay-2',
-  textElementId: '#text-2',
-  index: 0
+var currentViewIndex = 0;
+var views = [];
+var options = {};
+
+options.splashPage = {
+	backgroundUrl: 'url(/images/background-1.jpg)',
+	overlayText: [
+		{
+			textType: 'title',
+			text: 'Here is some exciting text!!!'
+		}
+	],
+	overlayTextStyles: null,
+	splashTextPosition: {
+		xPosition: 'center',
+		yPosition: 'center'
+	},
+	belowSplashTextBox: {
+		overlayText: [
+			{
+				textType: 'title',
+				text: "Authored By: Adam Belliveau",
+				textAlign: 'center'
+			}
+		],
+		overlayStyles: null,
+	}
 };
 
-var views = [
-  {
-    backgroundUrl: 'url(/images/background-1.jpg)',
-    backgroundStyles: null,
-    overlayText: 'Here is some exciting text!!!',
-    overlayTextStyles: null,
-    overlayStyles: null
-  },
-  {
-    backgroundUrl: 'url(/images/background-2.jpg)',
-    backgroundStyles: null,
-    overlayText: 'Here is some more exciting text!!!',
-    overlayTextStyles: null,
-    overlayStyles: null
-  },
-  {
-    backgroundUrl: 'url(/images/background-3.jpg)',
-    backgroundStyles: null,
-    overlayText: 'Here is some boring text.',
-    overlayTextStyles: null,
-    overlayStyles: null
-  }
+options.viewOptions = [
+	{
+		backgroundUrl: 'url(/images/background-1.jpg)',
+		backgroundStyles: null,
+		overlayText: [
+			{
+				textType: 'title',
+				text: 'Here is some exciting text!!!'
+			}
+		],
+		overlayTextStyles: null,
+		overlayStyles: null,
+		overlayOptions: {
+			position: 'right',
+			textAlign: 'right'
+		}
+	},
+	{
+		backgroundUrl: 'url(/images/background-2.jpg)',
+		backgroundStyles: null,
+		overlayText: [{
+			text: 'Here is some more exciting text!!!',
+			bold: true,
+			italic: false,
+			textAlign: 'center'
+		}],
+		overlayTextStyles: null,
+		overlayStyles: null,
+		overlayOptions: {
+			position: 'center',
+			textAlign: 'right'
+		}
+	},
+	{
+		backgroundUrl: 'url(/images/background-3.jpg)',
+		backgroundStyles: null,
+		overlayText: [
+			{
+				textType: 'title',
+				text: 'Here is some boring text.',
+				bold: false,
+				italic: true,
+				textAlign: 'right'
+			},
+			{
+				textType: 'sub-title',
+				text: 'Here is some even more boring text.',
+				bold: true,
+				italic: false,
+				textAlign: 'left'
+			},
+			{
+				textType: 'plain-title',
+				text: 'And here is a description of just how incredibly boring the text is. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+				bold: false,
+				italic: false,
+				textAlign: 'justify'
+			}
+		],
+		overlayTextStyles: null,
+		overlayStyles: null,
+		overlayOptions: {
+			position: 'left',
+			textAlign: 'left'
+		}
+	}
 ];
 
+function setup() {
+	setScrollDiv();
+	placeScrollStops();
+	createViews();
+}
 
+function setScrollDiv() {
+	var scrollStyles = {
+		'position': 'relative',
+		'z-index': options.viewOptions.length * 10,
+	};
+	var scrollDiv = $(document.createElement('div'));
+	scrollDiv.css(scrollStyles);
+	scrollDiv.addClass('scroll');
+	$('body').prepend(scrollDiv);
+}
 
-function showLoading() {
-  // TODO this is where we will show a loading spinner until the window load event
+function placeScrollStops() {
+
+	for(var i = 0; i < options.viewOptions.length + 1; i++) {
+		var stop = $(document.createElement('div'));
+		if(i === 0 && options.splashPage) {
+			stop.css('height', '450vh');
+			stop.append(createSplashPage());
+		} else {
+			stop.css('height', '300vh');
+		}
+
+		stop.css('position', 'relative');
+		stop.addClass('scrollStop-' + i);
+		$('.scroll').append(stop);
+	}
+}
+
+function createSplashPage() {
+	var splashPage = $(document.createElement('div'));
+	var splashText = createOverlayText(options.splashPage);
+	splashPage.css({
+		'height': '100vh',
+		'position': 'absolute',
+		'width': '100%',
+		'background': options.splashPage.backgroundUrl,
+		'background-position': 'center',
+		'background-repeat': 'no-repeat',
+		'background-size': 'cover',
+	});
+
+	if(options.splashPage.belowSplashTextBox) {
+		var textBox = $(document.createElement('div'));
+		var textBoxText = createOverlayText(options.splashPage.belowSplashTextBox);
+		textBox.css({
+			'height': '50vh',
+			'position': 'absolute',
+			'top': '100vh',
+			'background-color': '#eee',
+			'width': '100%'
+		});
+		textBox.append(textBoxText);
+		splashPage.append(textBox);
+	}
+
+	splashPage.prepend(splashText);
+
+	return splashPage;
+}
+
+function createViews() {
+	for (var i = 0; i < options.viewOptions.length; i++) {
+		var view = {
+			viewWrapper: createFixedViewWrapper(options.viewOptions[i], options.viewOptions.length - i),
+			relativeViewWrapper: createRelativeViewWrapper(),
+			viewBackground: createViewBackground(options.viewOptions[i]),
+			overlay: createOverlay(options.viewOptions[i]),
+			overlayText: createOverlayText(options.viewOptions[i]),
+			scrollStop: $('.scrollStop-' + (i + 1))
+		};
+		view.relativeViewWrapper.append(view.viewBackground);
+		view.overlay.append(view.overlayText);
+		view.relativeViewWrapper.append(view.overlay);
+		view.viewWrapper.append(view.relativeViewWrapper);
+		$('body').append(view.viewWrapper);
+		views.push(view);
+	}
+}
+
+function createFixedViewWrapper(viewOptions, index) {
+	var fixedViewWrapper = $(document.createElement('div'));
+	fixedViewWrapper.css({
+		'z-index': index,
+		'position': 'fixed',
+		'top': 0,
+		'width': '100%',
+		'display': 'block',
+		'opacity': 1
+	});
+	return fixedViewWrapper;
+}
+
+function createRelativeViewWrapper() {
+	var relativeViewWrapper = $(document.createElement('div'));
+	relativeViewWrapper.css({
+		'position': 'relative'
+	});
+	return relativeViewWrapper;
+}
+
+function createViewBackground(viewOptions) {
+	var viewBackground = $(document.createElement('div'));
+	if(viewOptions.backgroundStyles) viewBackground.css(viewOptions.backgroundStyles);
+	viewBackground.css({
+		'position': 'absolute',
+		'top': 0,
+		'height': '100vh',
+		'width': '100%',
+		'background': viewOptions.backgroundUrl,
+		'background-position': 'center',
+		'background-repeat': 'no-repeat',
+		'background-size': 'cover',
+	});
+	return viewBackground;
+}
+
+function createOverlay(viewOptions) {
+	var overlay = $(document.createElement('div'));
+	overlay.css({
+		'background-color': '#eee',
+		'border-radius': '5px',
+		'padding': '2vh 15px',
+		'max-width': '50vw',
+		'box-shadow': '0 0 10px #111',
+		'opacity': '0.8'
+	});
+	if(viewOptions.overlayOptions) {
+		var position = viewOptions.overlayOptions.position;
+		var textAlign = viewOptions.overlayOptions.textAlign;
+		if(position && position === 'right') {
+			position = { 'right': '5vw' };
+		} else if (position && position === 'center') {
+			position = { 'right': '25vw', 'left': '25vw' };
+		} else {
+			position = { 'left': '5vw' };
+		}
+		if(textAlign) overlay.css('text-align', textAlign);
+		overlay.css(position);
+	}
+	if(viewOptions.overlayStyles) overlay.css(viewOptions.overlayStyles);
+	overlay.css({
+		'max-height': '90vh',
+		'position': 'absolute',
+		'top': '100vh',
+	});
+	return overlay;
+}
+
+function createOverlayText(viewOptions) {
+	var textWrapper = $(document.createElement('div'));
+	if(viewOptions.overlayText.length > 0) {
+		for(var i = 0; i < viewOptions.overlayText.length; i++) {
+			var textElement = createTextElement(viewOptions.overlayText[i], viewOptions.overlayTextStyles);
+			textWrapper.append(textElement);
+		}
+	}
+	return textWrapper;
+}
+
+function createTextElement(textOptions, textStyles) {
+	var elementType = textOptions.textType;
+	var basicTextStyles = {
+		'font-style': textOptions.italic ? 'italic' : 'normal',
+		'font-weight': textOptions.bold ? 'bold' : 'normal',
+		'text-align': textOptions.textAlign ? textOptions.textAlign : 'left'
+	};
+	var textElement;
+	if (elementType === 'sub-title') {
+		textElement = $(document.createElement('h3'));
+	} else if (elementType === 'title') {
+		textElement = $(document.createElement('h2'));
+	} else {
+		textElement = $(document.createElement('p'));
+	}
+	textElement.text(textOptions.text);
+	textElement.css(basicTextStyles);
+	if(textStyles) textElement.css(textStyles);
+	return textElement;
 }
 
 function updateLoop() {
-    var activeDivScrollTop = $(currentViewObject.backgroundId)[0].scrollTop;
-    var activeDivScrollHeight = $(currentViewObject.backgroundId)[0].offsetHeight;
-    var activeOverlayHeight = $(currentViewObject.overlayId)[0].offsetHeight;
-    var overlayOffsetTop = activeDivScrollHeight - activeDivScrollTop;
-    var overlayOffsetBottom = activeDivScrollHeight - overlayOffsetTop - activeOverlayHeight;
+	var scrollStopOffsetTop = views[currentViewIndex].scrollStop.offset().top;
+	var scrollStopHeight = views[currentViewIndex].scrollStop.height();
+	var overlay = views[currentViewIndex].overlay;
 
-// Set next view conditional tree
-    if (overlayOffsetTop < 20 && nextViewObject.index <= currentViewObject.index) {
-    // console.log('overlayOffsetTop < 20 && nextIndex !== currentIndex + 1');
-        console.log('time to set next view');
-        setNextView(currentViewObject.index + 1);
-        transitionComplete = false;
+	var viewBackground = views[currentViewIndex].viewBackground;
 
-    }  else if (overlayOffsetBottom < 20 && nextViewObject.index >= currentViewObject.index && currentViewObject.index > 0) {
+	var viewWrapper = views[currentViewIndex].viewWrapper;
+	var overlayHeight = overlay.height();
+	var windowHeight = $(window).height();
+	var heightToScrollOverlay = overlayHeight + windowHeight;
+	var scrollPercentageFromTop = scrollStopOffsetTop / scrollStopHeight;
 
-        console.log('setPreviousView');
-        setNextView(currentViewObject.index - 1);
-        transitionComplete = false;
+	var newOverlayTopOffset = heightToScrollOverlay - (windowHeight * (1 - scrollPercentageFromTop) * 1.3);
 
-    } else if (overlayOffsetTop > 20 && overlayOffsetBottom > 20) {
-      transitionComplete = true;
-    }
+	overlay.css('top', newOverlayTopOffset);
 
-  // console.log('overlayOffsetTop: ' + overlayOffsetTop);
-  // console.log('overlayOffsetBottom: ' + overlayOffsetBottom);
+	if(scrollPercentageFromTop > 0) viewBackground.css('transform', 'scale(' + Math.max(1 + ((1 - scrollPercentageFromTop) * 0.2), 1) + ')');
 
-    if(-overlayOffsetTop / activeOverlayHeight >= 1 && currentViewObject.index < nextViewObject.index && !transitionComplete) {
+	if(scrollPercentageFromTop > 0.9 && currentViewIndex > 0) {
 
-        console.log('setNextViewToCurrent');
-        transitionComplete = true;
-        setNextViewToCurrent();
+		currentViewIndex--;
 
-    } else if(overlayOffsetTop <= 0 && currentViewObject.index < nextViewObject.index && overlayOffsetBottom > 20) {
+	} else if (scrollPercentageFromTop > 0.1) {
 
-        console.log('fade to next view');
-        fadeToNextView(1 - (-overlayOffsetTop / activeOverlayHeight));
+		viewWrapper.css('opacity', '1');
 
-    } else if (-overlayOffsetBottom / activeOverlayHeight >= 1 && currentViewObject.index > 0 && currentViewObject.index > nextViewObject.index && !transitionComplete) {
+	} else if(scrollPercentageFromTop < 0.1 && scrollPercentageFromTop >= 0 && currentViewIndex < views.length - 1) {
 
-        console.log('setPreviousViewToCurrent');
-        transitionComplete = true;
-        setNextViewToCurrent();
+		viewWrapper.css('opacity', (scrollPercentageFromTop * 10));
 
-    } else if (overlayOffsetBottom <= 0 && currentViewObject.index > 0) {
+	} else if (scrollPercentageFromTop < 0 && currentViewIndex < views.length - 1) {
 
-        console.log(-overlayOffsetBottom / activeOverlayHeight);
-        fadeToNextView(1 + overlayOffsetBottom / activeOverlayHeight);
-
-    }
+		viewWrapper.css('opacity', '0');
+		currentViewIndex++;
+	}
 
 }
 
-function setNextView(index) {
-  var viewObject = views[index];
-  var nextView = $(nextViewObject.viewId);
-  var nextBackground = $(nextViewObject.backgroundId);
-  var nextOverlay = $(nextViewObject.overlayId);
-  var nextTextElement = $(nextViewObject.textElementId);
-  nextBackground.css('background', viewObject.backgroundUrl);
-  if(viewObject.backgroundStyles) nextBackground.css(viewObject.backgroundStyles);
-  nextBackground.css('background-position', 'center');
-  nextBackground.css('background-repeat', 'no-repeat');
-  nextBackground.css('background-size', 'cover');
-  if(viewObject.overlayStyles) nextOverlay.css(viewObject.overlayStyles);
-  nextOverlay.css('max-height', '90vh');
-  nextTextElement.text(viewObject.overlayText);
-  if(viewObject.overlayTextStyles) nextTextElement.css(viewObject.overlayTextStyles);
-  nextView.css('display', 'block');
-  nextViewObject.index = index;
-  adjustZindexes();
-}
-
-function fadeToNextView(opacityValue) {
-  setCurrentDisplayOpacity(opacityValue + 0.5);
-  setNextDisplayOpacity(0.5 - opacityValue);
-}
-
-function adjustZindexes() {
-  var currentView = $(currentViewObject.viewId);
-  var nextView = $(nextViewObject.viewId);
-  currentView.css('z-index', '1');
-  nextView.css('z-index', '0');
-}
-
-function setCurrentDisplayOpacity(opacity) {
-  var currentView = $(currentViewObject.viewId);
-  currentView.css('opacity', opacity);
-}
-function setNextDisplayOpacity(opacity) {
-  var nextView = $(nextViewObject.viewId);
-  nextView.css('opacity', opacity);
-}
-
-function setNextViewToCurrent() {
-  var tempViewObject = currentViewObject;
-  currentViewObject = nextViewObject;
-  nextViewObject = tempViewObject;
-  $(currentViewObject.viewId).css('z-index', '10');
-}
-
+setup();
 setInterval(updateLoop, 1000/60);
-// setInterval(updateLoop, 1000);
-
-$(document).ready(function() {
-
-});
