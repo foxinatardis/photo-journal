@@ -23,7 +23,7 @@ options.splashPage = {
 				textAlign: 'center'
 			}
 		],
-		overlayStyles: null,
+		overlayStyles: null
 	}
 };
 
@@ -104,7 +104,7 @@ function setup() {
 function setScrollDiv() {
 	var scrollStyles = {
 		'position': 'relative',
-		'z-index': options.viewOptions.length * 10,
+		'z-index': options.viewOptions.length * 10
 	};
 	var scrollDiv = $(document.createElement('div'));
 	scrollDiv.css(scrollStyles);
@@ -117,7 +117,7 @@ function placeScrollStops() {
 	for(var i = 0; i < options.viewOptions.length + 1; i++) {
 		var stop = $(document.createElement('div'));
 		if(i === 0 && options.splashPage) {
-			stop.css('height', '450vh');
+			stop.css('height', '430vh');
 			stop.append(createSplashPage());
 		} else {
 			stop.css('height', '300vh');
@@ -139,19 +139,24 @@ function createSplashPage() {
 		'background': options.splashPage.backgroundUrl,
 		'background-position': 'center',
 		'background-repeat': 'no-repeat',
-		'background-size': 'cover',
+		'background-size': 'cover'
 	});
+
+	if(options.splashPage.overlayTextStyles) splashText.css(options.splashPage.overlayTextStyles);
+
+	splashText.addClass('splash-text');
 
 	if(options.splashPage.belowSplashTextBox) {
 		var textBox = $(document.createElement('div'));
 		var textBoxText = createOverlayText(options.splashPage.belowSplashTextBox);
 		textBox.css({
-			'height': '50vh',
+			'height': '30vh',
 			'position': 'absolute',
 			'top': '100vh',
 			'background-color': '#eee',
 			'width': '100%'
 		});
+		textBox.addClass('below-splash-box');
 		textBox.append(textBoxText);
 		splashPage.append(textBox);
 	}
@@ -212,7 +217,7 @@ function createViewBackground(viewOptions) {
 		'background': viewOptions.backgroundUrl,
 		'background-position': 'center',
 		'background-repeat': 'no-repeat',
-		'background-size': 'cover',
+		'background-size': 'cover'
 	});
 	return viewBackground;
 }
@@ -244,7 +249,7 @@ function createOverlay(viewOptions) {
 	overlay.css({
 		'max-height': '90vh',
 		'position': 'absolute',
-		'top': '100vh',
+		'top': '100vh'
 	});
 	return overlay;
 }

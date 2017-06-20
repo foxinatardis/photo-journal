@@ -1,41 +1,37 @@
-/*.scroll {
-  position: relative;
-  z-index: 1;
-}*/
-
 
 .view-wrapper {
   position: fixed;
   top: 0;
-  /*left: 5%;*/
   width: 100%;
-  /*overflow: scroll;*/
+}
+
+.splash-text {
+  position: absolute;
+  padding: 0 50px;
+  color: #fff;
+  bottom: 20px;
+  right: 20px;
+}
+
+.below-splash-box {
+  line-height: 30vh;
+
+}
+
+.below-splash-box > div > h2 {
+  margin: 0;
 }
 
 .background {
   position: relative;
   height: 100vh;
-  background: url('/images/background-1.jpg');
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
   background-attachment: fixed;
 }
 
-/*#view-1 .background {
-  background: url('/images/background1.jpg');*/
-  /*background-size: cover;
-  background-position: center;
-  background-attachment: fixed;*/
-/*}*/
-
-#view-2 {
-  display: none;
-}
-
 .overlay {
-  /*position: absolute;*/
-  /*top: 500px;*/
   height: 100px;
   width: 20vw;
   margin-top: 101vh;
